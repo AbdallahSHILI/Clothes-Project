@@ -1,23 +1,21 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/UserModel");
+const User = require("../Models/userModel");
 const dotenv = require("dotenv");
 require("dotenv").config;
 
 //get token
 const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
+  return jwt.sign({ id }, process.env.JWT_SECRET);
 };
 
 // create and send token => to USE
 const createSendToken = (user, statusCode, res) => {
-  // 3ayetelha
+  // call her
   const token = signToken(user._id);
   // Remove password from output pour la secrete
   user.password = undefined;
   res.status(statusCode).json({
-    status: "succès",
+    status: "Succes",
     token,
     data: {
       user,
@@ -29,22 +27,22 @@ const createSendToken = (user, statusCode, res) => {
 exports.login = async (req, res, next) => {
   try {
     //1)check if email and password exist in req.body
-    const { Email, password } = req.body;
-    if (!Email || !password) {
+    const { Email, Password } = req.body;
+    if (!Email || !Password) {
       return res.status(404).json({
         status: "echec",
         message: "You must paste an email and password !",
       });
     }
-    //2) check if useremail exists && password is correct password exist
-    const user = await User.findOne({ Email }).select("+password");
-    if (!user || !(await user.validatePassword(password, user.password))) {
+    //2) check if user email exists && password is correct password exist
+    const user = await User.findOne({ Email }).select("+Password");
+    if (!user || !(await user.validatePassword(Password, user.Password))) {
       return res.status(401).json({
         status: "echec",
         message: "Invalid email or password ",
       });
     }
-    //3) if evrything ok , send token to the client
+    //3) if everything ok , send token to the customer
     createSendToken(user, 200, res);
   } catch (err) {
     res.status(404).json({
@@ -58,12 +56,12 @@ exports.login = async (req, res, next) => {
 exports.signup = async (req, res) => {
   try {
     const newUser = await User.create({
-      name: req.body.name,
+      FirstLastName: req.body.FirstLastName,
       Email: req.body.Email,
-      password: req.body.password,
-      passwordConfirm: req.body.passwordConfirm,
-      phoneNumber: req.body.phoneNumber,
-      role: req.body.role,
+      Password: req.body.Password,
+      ConfirmPassword: req.body.ConfirmPassword,
+      PhoneNumber: req.body.PhoneNumber,
+      Role: req.body.Role,
     });
     createSendToken(newUser, 201, res);
   } catch (err) {
@@ -81,7 +79,7 @@ exports.protect = async (req, res, next) => {
   if (!token) {
     return res.status(401).send({
       status: "echec",
-      message: "You are not connected ! You need to be connected to acces !! ",
+      message: "You are not connected ! You need to be connected to access !! ",
     });
   }
   // 2) VERIFICATION TOKEN
@@ -92,7 +90,7 @@ exports.protect = async (req, res, next) => {
   if (!currentUser) {
     return res.status(401).send({
       status: "echec",
-      message: "User of this token no longer existe !! ",
+      message: "User of this token no longer exist !! ",
     });
   }
   // Grand access to protected route
@@ -100,10 +98,10 @@ exports.protect = async (req, res, next) => {
   next();
 };
 
-//restrict to admin , client , employee
+//restrict to admin , customer , designer
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.Role)) {
       return res.status(401).json({
         status: "echec",
         message: "You don't have the permission to do this action !! ",

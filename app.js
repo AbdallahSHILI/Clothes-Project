@@ -1,13 +1,12 @@
 const bodyParser = require("body-parser");
-const cors = require("cors");
-
 const express = require("express");
+
+app = express();
 
 const userRouter = require("./Routes/userRoutes");
 const clothesRouter = require("./Routes/clothesRoutes");
-
-app = express();
-app.use(cors({ origine: "*" }));
+const messageRouter = require("./Routes/messageRoutes");
+const offerRouter = require("./Routes/offerRoutes");
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -15,7 +14,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
 
-app.use("/v2/users", userRouter);
-app.use("/v2/clothes", clothesRouter);
+app.use("/Clothing/Users", userRouter);
+app.use("/Clothing/Clothes", clothesRouter);
+app.use("/Clothing/Messages", messageRouter);
+app.use("/Clothing/Offers", offerRouter);
 
 module.exports = app;

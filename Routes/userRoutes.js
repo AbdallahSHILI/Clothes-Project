@@ -1,32 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const authController = require("../controllers/authController");
-const userController = require("../controllers/userController");
+const authController = require("../Controllers/authController");
+const userController = require("../Controllers/userController");
 
-//create ew compte
-router.post("/signup", authController.signup);
+//create designer customer admin
+router.post("/Signup", authController.signup); //Done
 
-//login by adress and psw
-router.post("/login", authController.login);
+//login by password & email
+router.post("/Login", authController.login); //Done
 
-//get profil by current user
+//List of all customers for admin
 router.get(
-  "/me",
-  authController.protect,
-  //  req.user.id and put it in req.params.id
-  userController.getMe,
-  userController.getUserById
-);
-
-// Liste of all clients for admin
-router.get(
-  "/AllClients",
+  "/AllCustomers",
   authController.protect,
   authController.restrictTo("admin"),
-  userController.findAllClients
+  userController.getAllCustomers
 );
 
-// Liste of all admins for admin
+// List of all admins for admin
 router.get(
   "/AllAdmins",
   authController.protect,
@@ -34,38 +25,63 @@ router.get(
   userController.findAllAdmins
 );
 
+// List of all designers for admin
 router.get(
-  "/AllDesigner",
+  "/AllDesigners",
   authController.protect,
   authController.restrictTo("admin"),
   userController.findAllDesigners
 );
 
+//get profile by current user
+router.get(
+  "/Me",
+  authController.protect,
+  userController.getMe,
+  userController.getUserById
+);
+
 //get user by id for admin
 router.get(
-  "/:idUser",
+  "/:id",
   authController.protect,
   authController.restrictTo("admin"),
   userController.getUserById
 );
 
-//get designer by id for current client
+//get designer by id for current customer
 router.get(
-  "/getDesigner/:idDesigner",
+  "/GetDesigner/:idDesigner",
   authController.protect,
-  authController.restrictTo("client"),
+  authController.restrictTo("customer"),
   userController.getDesignerById
 );
 
 //update user
-router.patch("/:id", authController.protect, userController.updateUser);
+router.patch("/:idUser", authController.protect, userController.updateUser);
 
-//delete user for admin
-router.delete(
-  "/:idUser",
+// List of designer who have 5 rate less than 1
+router.get(
+  "/AllFakeDesigner",
   authController.protect,
   authController.restrictTo("admin"),
-  userController.deleteUser
+  userController.findAllFakeDesigner
+);
+
+//delete designer by admin
+router.delete(
+  "/:idDesigner",
+  authController.protect,
+  authController.restrictTo("admin"),
+  userController.deleteDesigner
+);
+
+//delete customer by admin
+router.delete(
+  "/:idCustomer",
+  authController.protect,
+  authController.restrictTo("admin"),
+  userController.deleteCustomer
 );
 
 module.exports = router;

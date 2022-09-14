@@ -1,14 +1,17 @@
 const factoryOne = require("./factoryOne");
-const User = require("../models/UserModel");
+const User = require("../Models/userModel");
 
-// find one client for admin
+// find one customer for admin
 exports.getUserById = factoryOne.findOne(User);
 
 // update current user
 exports.updateUser = factoryOne.updateProfile(User);
 
-// delete user for admin
-exports.deleteUser = factoryOne.deleteOneUser(User);
+// delete designer for admin
+exports.deleteDesigner = factoryOne.deleteOneDesigner(User);
+
+// delete customer for admin
+exports.deleteCustomer = factoryOne.deleteOneCustomer(User);
 
 //get current user using the getUserByID
 exports.getMe = (req, res, next) => {
@@ -16,11 +19,11 @@ exports.getMe = (req, res, next) => {
   next();
 };
 
-// find all clients for admin
-exports.findAllClients = async (req, res, next) => {
+// find all customers for admin
+exports.getAllCustomers = async (req, res, next) => {
   try {
-    // Test if there is clients
-    const doc = await User.find({ role: "client" });
+    // Test if there is customers
+    const doc = await User.find({ Role: "customer" });
     return res.status(200).json({
       status: "succes",
       result: doc.length,
@@ -40,9 +43,9 @@ exports.findAllClients = async (req, res, next) => {
 exports.findAllAdmins = async (req, res, next) => {
   try {
     // Test if there is admins
-    const doc = await User.find({ role: "admin" });
+    const doc = await User.find({ Role: "admin" });
     return res.status(200).json({
-      status: "sucees",
+      status: "succes",
       result: doc.length,
       data: {
         data: doc,
@@ -59,8 +62,8 @@ exports.findAllAdmins = async (req, res, next) => {
 // find all Designers for admin
 exports.findAllDesigners = async (req, res, next) => {
   try {
-    // Test if there is employees
-    const doc = await User.find({ role: "designer" });
+    // Test if there is designers
+    const doc = await User.find({ Role: "designer" });
     return res.status(200).json({
       status: "succes",
       result: doc.length,
@@ -79,8 +82,8 @@ exports.findAllDesigners = async (req, res, next) => {
 // find one designer for admin
 exports.getDesignerById = async (req, res, next) => {
   try {
-    // Test if there is an employee
-    const user = await User.findById(req.params.id);
+    // Test if there is an designer
+    const user = await User.findById(req.params.idDesigner);
     if (user) {
       return res.status(200).json({
         status: "succes",
@@ -95,6 +98,31 @@ exports.getDesignerById = async (req, res, next) => {
   } catch (err) {
     return res.status(404).json({
       status: "echec",
+      data: err,
+    });
+  }
+};
+
+// List of designers who have 5 rate less than 2
+exports.findAllFakeDesigner = async (req, res, next) => {
+  try {
+    // Test if there is a fake employees
+    const fakeDesigner = await User.find({ NumberNegRate: { $gte: 5 } });
+    if (fakeDesigner) {
+      return res.status(200).json({
+        status: "succes",
+        result: fakeDesigner.length,
+        data: {
+          fakeDesigner,
+        },
+      });
+    }
+    return res.status(404).json({
+      status: "There is no fake designers !!",
+    });
+  } catch (err) {
+    return res.status(404).json({
+      status: "Echec",
       data: err,
     });
   }
