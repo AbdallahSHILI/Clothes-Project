@@ -4,10 +4,10 @@ const authController = require("../Controllers/authController");
 const userController = require("../Controllers/userController");
 
 //create designer customer admin
-router.post("/Signup", authController.signup); //Done
+router.post("/Signup", authController.signup);
 
 //login by password & email
-router.post("/Login", authController.login); //Done
+router.post("/Login", authController.login);
 
 //List of all customers for admin
 router.get(

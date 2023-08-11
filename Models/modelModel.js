@@ -59,6 +59,10 @@ const ModelSchema = new mongoose.Schema({
     default: false,
     select: true,
   },
+  Image: {
+    type: String,
+    required: [true, "Please upload the picture of Model !! "],
+  },
 });
 
 //MODEL SCHEMA

@@ -3,20 +3,23 @@ const User = require("../Models/userModel");
 exports.createOne = (Model) => async (req, res, next) => {
   try {
     // Create new Model
-    const doc = await Model.create(req.body);
+    let model = await new Model({
+      Description: req.body.Description,
+      UserID: req.user.id,
+    });
+    if (req.file) {
+      model.Image = req.file.path;
+    }
+    model.save();
     // Test if Model was created
-    if (doc) {
-      // Push the id of current customer in Model
-      await Model.findByIdAndUpdate(doc.id, {
-        $push: { UserID: req.user.id },
-      });
+    if (model) {
       //Add the id of Model in the profile current customer
       await User.findByIdAndUpdate(req.user.id, {
-        $push: { MyModels: doc.id },
+        $push: { MyModels: model.id },
       });
       return res.status(201).json({
         status: "Succes",
-        doc,
+        model,
       });
     }
   } catch (err) {
@@ -30,20 +33,24 @@ exports.createOne = (Model) => async (req, res, next) => {
 exports.addOne = (Model) => async (req, res, next) => {
   try {
     // Add new clothes
-    const doc = await Model.create(req.body);
+    let clothes = await new Model({
+      Description: req.body.Description,
+      Price: req.body.Price,
+      DesignerID: req.user.id,
+    });
+    if (req.file) {
+      clothes.Image = req.file.path;
+    }
+    clothes.save();
     // Test if clothes was created
-    if (doc) {
-      // Push the id of current designer in clothes
-      await Model.findByIdAndUpdate(doc.id, {
-        $push: { DesignerID: req.user.id },
-      });
+    if (clothes) {
       //Add the id of clothes in the profile current designer
       await User.findByIdAndUpdate(req.user.id, {
-        $push: { MyClothes: Model.id },
+        $push: { MyClothes: clothes.id },
       });
       return res.status(201).json({
         status: "Succes",
-        doc,
+        clothes,
       });
     }
   } catch (err) {

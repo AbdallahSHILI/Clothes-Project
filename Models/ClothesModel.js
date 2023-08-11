@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 
 //Schema of an clothes
 const ClothesSchema = new mongoose.Schema({
-  // Img: {
-  //   data: Buffer,
-  //   contentType: String,
-  // },
   Description: {
     type: String,
     required: [true, "Please enter the description of this clothes !! "],
@@ -40,6 +36,10 @@ const ClothesSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
     select: true,
+  },
+  Image: {
+    type: String,
+    required: [true, "Please upload the picture of clothes !! "],
   },
 });
 

@@ -2,6 +2,16 @@ const express = require("express");
 const router = express.Router();
 const clothesController = require("../Controllers/clothesController");
 const authController = require("../Controllers/authController");
+const upload = require("../Middleware/upload");
+
+// Add new clothes
+router.post(
+  "/New",
+  authController.protect,
+  authController.restrictTo("designer"),
+  upload.single("Image"),
+  clothesController.AddOneClothes
+);
 
 // Send request to buy one clothes by current customer
 router.post(
@@ -96,7 +106,8 @@ router.post(
   "/",
   authController.protect,
   authController.restrictTo("customer"),
-  clothesController.createModel //Done
+  upload.single("Image"),
+  clothesController.createModel
 );
 
 // Retrieve all models
@@ -145,14 +156,6 @@ router.get(
   authController.protect,
   authController.restrictTo("admin"),
   clothesController.findAllDoneModelsAdmin
-);
-
-// Add new clothes
-router.post(
-  "/New",
-  authController.protect,
-  authController.restrictTo("designer"),
-  clothesController.AddOneClothes
 );
 
 // cancel a request to a Model by current designer
