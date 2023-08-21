@@ -37,28 +37,21 @@ router.get(
   clothesController.findAllClothes
 );
 
-//get all models that current designer send a request for it and he was accepted
-router.get(
-  "/MyMissions",
-  authController.protect,
-  authController.restrictTo("designer"),
-  clothesController.getAllNewMissions
-);
-
-//get all models that current designer send a request for it
-router.get(
-  "/MySendRequest",
-  authController.protect,
-  authController.restrictTo("designer"),
-  clothesController.findSendRequestDesigner
-);
-
 // get one own clothes by current designer
 router.get(
   "/MyAllClothes/:idClothes",
   authController.protect,
   authController.restrictTo("designer"),
   clothesController.findMyOneClothes
+);
+
+// Create a new model
+router.post(
+  "/",
+  authController.protect,
+  authController.restrictTo("customer"),
+  upload.single("Image"),
+  clothesController.createModel
 );
 
 //get models of current customer
@@ -101,21 +94,20 @@ router.patch(
   clothesController.updateModel
 );
 
-// Create a new model
-router.post(
-  "/",
-  authController.protect,
-  authController.restrictTo("customer"),
-  upload.single("Image"),
-  clothesController.createModel
-);
-
 // Retrieve all models
 router.get(
   "/",
   authController.protect,
   authController.restrictTo("admin"),
   clothesController.getAllModelsAdmin
+);
+
+// Send a request to an model by current designer
+router.post(
+  "/SendRequest/:idModel",
+  authController.protect,
+  authController.restrictTo("designer"),
+  clothesController.sendRequestAndOfferToModel
 );
 
 // get all models that current designer does'nt send any request to it
@@ -182,14 +174,6 @@ router.delete(
   clothesController.deleteModelAdmin
 );
 
-// Rate an designer by current customer
-router.post(
-  "/Rate/:idModel/:idDesigner",
-  authController.protect,
-  authController.restrictTo("customer"),
-  clothesController.Rate
-);
-
 //delete one clothes by admin
 router.delete(
   "/adminDeleteClothes/:idClothes",
@@ -197,6 +181,9 @@ router.delete(
   authController.restrictTo("admin"),
   clothesController.deleteClothesAdmin
 );
+/////////
+/////////
+//////////
 
 //delete one model by current customer
 router.delete(
@@ -214,12 +201,20 @@ router.get(
   clothesController.getOneMission
 );
 
-// Send a request to an model by current designer
-router.post(
-  "/SendRequest/:idModel",
+//get all models that current designer send a request for it and he was accepted
+router.get(
+  "/MyMissions",
   authController.protect,
   authController.restrictTo("designer"),
-  clothesController.sendRequestAndOfferToModel
+  clothesController.getAllNewMissions
+);
+
+//get all models that current designer send a request for it
+router.get(
+  "/MySendRequest",
+  authController.protect,
+  authController.restrictTo("designer"),
+  clothesController.findSendRequestDesigner
 );
 
 module.exports = router;

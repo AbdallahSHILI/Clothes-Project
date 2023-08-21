@@ -100,7 +100,6 @@ exports.sendRequestAndOfferToModel = async (req, res) => {
 exports.cancelRequestDeleteOffer = async (req, res) => {
   try {
     let userToEdit = req.user;
-
     // Test if there is a Model
     let model = await Model.findById(req.params.idModel);
     if (!model) {
@@ -115,14 +114,12 @@ exports.cancelRequestDeleteOffer = async (req, res) => {
         message: "No offer with that id !! ",
       });
     }
-
     // Test if the current designer send a request
     if (!model.ListReqDesigner.includes(userToEdit.id)) {
       return res.status(400).send({
         message: "You don't send any request to this model !! ",
       });
     }
-
     // Test if the current designer is the responsible to the specific Model
     // the responsible designer can't cancel his request
     if (!model.ResponsibleDesigner.includes(userToEdit.id)) {
@@ -133,7 +130,6 @@ exports.cancelRequestDeleteOffer = async (req, res) => {
       //Filter the id of an offer from the list of Offers in a specific Model
       model.Offers = model.Offers.filter((e) => e._id != req.params.idOffer);
       // Update all the last changes on Model
-
       let doc = await Model.findByIdAndUpdate(model.id, model, {
         new: true,
         runValidators: true,
@@ -188,18 +184,17 @@ exports.PerformDesignerToModel = async (req, res) => {
     if (model.UserID == req.user.id) {
       // Test if the current customer choose an designer to be the responsible to the Model
       if (!model.ResponsibleDesigner.includes(req.params.idDesigner)) {
-        console.log(model);
         // Test if the designer already send a request to the specific Model
         if (model.ListReqDesigner.includes(req.params.idDesigner)) {
           //Make the specific designer a responsible to the specific Model
           model.ResponsibleDesigner = req.params.idDesigner;
           //Change the status of th Model
           model.Done = true;
-          (model.AcceptedOffer = true),
-            //Push id of Model into the list of incomplet Model in profile of designer
-            await User.findByIdAndUpdate(req.params.idDesigner, {
-              $push: { ModelsIncomplet: req.params.idModel },
-            });
+          model.AcceptedOffer = true;
+          //Push id of Model into the list of incomplet Model in profile of designer
+          await User.findByIdAndUpdate(req.params.idDesigner, {
+            $push: { ModelsIncomplet: req.params.idModel },
+          });
           //save the last changes
           model.save();
           return res.status(200).send({
@@ -320,20 +315,22 @@ exports.deleteModelAdmin = async (req, res, next) => {
     for (i = 0; i < lngListOffers; i++) {
       const offers = await Offer.findByIdAndDelete(Model.Offers[i]);
     }
-    customerResponsible = await User.findById({ _id: Model.UserID });
-    //Filter the id of Modelan from the List of Models of  an customer
-    customerResponsible.MyModels = customerResponsible.MyModels.filter(
-      (e) => e._id != req.params.idModel
-    );
-    // Update all the last changes on the designer profile
-    let user2 = await User.findByIdAndUpdate(
-      customerResponsible.id,
-      customerResponsible,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    customerResponsible = await User.findById(Model.UserID);
+    if (customerResponsible) {
+      //Filter the id of Modelan from the List of Models of  an customer
+      customerResponsible.MyModels = customerResponsible.MyModels.filter(
+        (e) => e._id != req.params.idModel
+      );
+      // Update all the last changes on the designer profile
+      let user2 = await User.findByIdAndUpdate(
+        customerResponsible.id,
+        customerResponsible,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+    }
     const doc = await Model.findByIdAndDelete(req.params.idModel);
     if (doc) {
       return res.status(200).json({
@@ -387,7 +384,7 @@ exports.deleteClothesAdmin = async (req, res, next) => {
       );
     }
 
-    CurrentDesigner = await User.findById({ _id: clothes.DesignerID });
+    CurrentDesigner = await User.findById(clothes.DesignerID);
     //Filter the id of Model an from the List of Models of  an customer
     CurrentDesigner.MyClothes = CurrentDesigner.MyClothes.filter(
       (e) => e._id != req.params.idClothes
@@ -533,89 +530,6 @@ exports.findMyOneClothes = async (req, res) => {
     return res.status(404).json({
       status: "Echec",
       data: err,
-    });
-  }
-};
-
-// rating of an designer by current user
-exports.Rate = async (req, res) => {
-  try {
-    const Rating = req.body;
-    // Test if there is an designer
-    const designer = await User.findById(req.params.idDesigner);
-    if (!designer) {
-      return res.status(400).send({
-        message: "No designer with that id !!",
-      });
-    }
-    // Test if there is a Model
-    const model = await Model.findById(req.params.idModel);
-    if (!model) {
-      return res.status(400).send({
-        message: "No Model with that id !! ",
-      });
-    }
-    // Test if Model's responsible id already review
-    if (model.ResponsibleDesignerRate == true) {
-      return res.status(400).send({
-        message: "You already rate this designer !! ",
-      });
-    }
-    // Test if the designer is the responsible of Model
-    if (designer.id == model.ResponsibleDesigner) {
-      // Test if the Model is already done
-      if (model.Done == true) {
-        // Create review
-        const rate = {
-          Name: req.user.Name,
-          Rating: req.body.Rating,
-          CustomerID: req.user.id,
-          DesignerID: designer.id,
-        };
-        // Test if designer has rate under 1
-        if (rate.Rating <= 1) {
-          designer.NumberNegRate++;
-        } else {
-          designer.NumberNegRate = designer.NumberNegRate + 0;
-        }
-        // Push review into profile of designer
-        designer.Rate.push(rate);
-        // Convert rate to int
-        designer.TabRate.push(parseInt(Rating));
-        designer.NumRate = designer.Rate.length;
-        // Calculate new rate of designer
-        const ev =
-          designer.TabRate.reduce((acc, item) => acc + item, 0) /
-          designer.NumRate;
-        // push new rate into profile of designer
-        designer.Rating = ev;
-        // Update all the last changes on the designer profile
-        await User.findByIdAndUpdate(req.params.idDesigner, designer, {
-          new: true,
-          runValidators: true,
-        });
-        // Change the status of designer's rate to be already review
-        model.ResponsibleDesignerRate = true;
-        //save the last changes
-        await model.save();
-        return res.status(200).json({
-          status: "Rate done !!",
-          data: {
-            designer,
-          },
-        });
-      }
-      return res.status(400).send({
-        message: "You can't rate now , because this model not finished !! ",
-      });
-    }
-    return res.status(400).send({
-      message: "This designer are not the responsible of this model",
-    });
-  } catch (err) {
-    return res.status(404).json({
-      status: "Echec",
-      message: err,
     });
   }
 };

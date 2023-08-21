@@ -3,35 +3,6 @@ const bcrypt = require("bcrypt");
 const validator = require("validator");
 const SALT_WORK_FACTOR = 10;
 
-//Schema of Rating an designer
-const RateSchema = mongoose.Schema({
-  Name: {
-    type: String,
-    required: true,
-    select: true,
-  },
-  Rating: {
-    type: Number,
-    required: [true, "Please rate this designer !! "],
-    select: true,
-  },
-  CustomerID: {
-    type: mongoose.Schema.ObjectId,
-    ref: "User",
-    select: true,
-  },
-  DesignerID: {
-    type: mongoose.Schema.ObjectId,
-    ref: "User",
-    select: true,
-  },
-  CreationDate: {
-    type: Date,
-    default: Date.now(),
-    select: true,
-  },
-});
-
 //Schema of User
 const userSchema = new mongoose.Schema({
   FirstLastName: {
@@ -120,21 +91,6 @@ const userSchema = new mongoose.Schema({
       ref: "offer",
     },
   ],
-  Rate: [RateSchema],
-  Rating: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
-  NumRate: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
-  NumberNegRate: {
-    type: Number,
-    default: 0,
-  },
   CreationDate: {
     type: Date,
     default: Date.now(),
@@ -143,7 +99,6 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  TabRate: [],
 });
 
 //2) validate password

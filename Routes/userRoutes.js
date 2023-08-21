@@ -60,14 +60,6 @@ router.get(
 //update user
 router.patch("/:idUser", authController.protect, userController.updateUser);
 
-// List of designer who have 5 rate less than 1
-router.get(
-  "/AllFakeDesigner",
-  authController.protect,
-  authController.restrictTo("admin"),
-  userController.findAllFakeDesigner
-);
-
 //delete designer by admin
 router.delete(
   "/:idDesigner",

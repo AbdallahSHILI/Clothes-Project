@@ -390,9 +390,7 @@ exports.getAllDoneModelsAdmin = (Model) => async (req, res, next) => {
     return res.status(200).json({
       status: "Succes",
       result: doc.length,
-      data: {
-        doc,
-      },
+      doc,
     });
   } catch (err) {
     return res.status(404).json({
